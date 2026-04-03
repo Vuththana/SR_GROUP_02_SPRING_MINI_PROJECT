@@ -14,6 +14,7 @@ public class ProfileController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Profile>> getProfile() {
+        System.out.println("Inside ProfileController");
         ApiResponse response = ResponseUtil.success(null, "Profile fetched successfully", null);
         return ResponseEntity.ok(response);
     }

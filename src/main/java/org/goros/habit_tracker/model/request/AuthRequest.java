@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppUserRequest {
-    private String username;
-    private String email;
+public class AuthRequest {
+    private String identifier;
     private String password;
-    private String profileImageUrl;
 }

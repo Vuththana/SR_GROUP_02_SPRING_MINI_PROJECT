@@ -1,4 +1,17 @@
 package org.goros.habit_tracker.service.impl;
 
-public class AppUserServiceImpl {
+import lombok.RequiredArgsConstructor;
+import org.goros.habit_tracker.service.AppUserService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AppUserServiceImpl implements AppUserService {
+    private final AppUserRepository appUserRepository;
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return appUserRepository.getUserByEmail(email);
+    }
 }

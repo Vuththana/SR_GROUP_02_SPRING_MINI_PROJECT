@@ -37,6 +37,11 @@ public interface AppUserRepository {
     AppUser register(@Param("req")AppUserRequest request);
 
 
+    @Update("""
+    UPDATE app_users SET is_verified = true WHERE email = #{email}
+    """)
+    void updateUserVerification(String email);
+
     @Select("""
     SELECT EXISTS (SELECT 1 FROM app_users WHERE app_user_id = #{appUserId} AND is_verified = false)
     """)

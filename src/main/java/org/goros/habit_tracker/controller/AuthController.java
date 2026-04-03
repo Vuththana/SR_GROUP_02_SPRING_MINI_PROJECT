@@ -9,6 +9,7 @@ import org.goros.habit_tracker.model.response.ApiResponse;
 import org.goros.habit_tracker.model.response.AppUserResponse;
 import org.goros.habit_tracker.model.response.AuthResponse;
 import org.goros.habit_tracker.service.AppUserService;
+import org.goros.habit_tracker.service.OtpService;
 import org.goros.habit_tracker.utils.ResponseUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -31,12 +32,11 @@ public class AuthController {
     private final AuthenticationManager authenticateManager;
     private final JwtService jwtService;
     private final ModelMapper modelMapper;
+    private final OtpService otpService;
 
     public void authenticate(String identifier, String password) throws Exception {
         try {
-            System.out.println("This is authenticate");
             authenticateManager.authenticate(new UsernamePasswordAuthenticationToken(identifier, password));
-            System.out.println("Success");
         } catch (
                 DisabledException e) {
             throw new Exception("USER_DISABLED", e);
@@ -44,6 +44,19 @@ public class AuthController {
                 BadCredentialsException e) {
             throw new Exception("INVALID_CREDENTIALS", e);
         }
+    }
+    @PostMapping("/send")
+    public ResponseEntity<String> sendOtp(@RequestParam String email) throws Exception {
+        otpService.generateAndSendOtp(email);
+        return ResponseEntity.ok("If an account with this email exists, an OTP has been sent. Please check your inbox.");
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<String> verifyOtp(@RequestParam String email,
+                                            @RequestParam String otpCode) {
+        boolean valid = otpService.verifyOtp(email, otpCode);
+        return valid ? ResponseEntity.ok("OTP verified!")
+                : ResponseEntity.status(400).body("Invalid or expired OTP");
     }
 
     @PostMapping("/login")
@@ -62,6 +75,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // This is for testing (will be deleted soon)
     @GetMapping("{user-id}")
     public ResponseEntity<AppUser> getUserById(@PathVariable("user-id") UUID appUserId) {
         return ResponseEntity.status(HttpStatus.OK).body(appUserService.getUserById(appUserId));

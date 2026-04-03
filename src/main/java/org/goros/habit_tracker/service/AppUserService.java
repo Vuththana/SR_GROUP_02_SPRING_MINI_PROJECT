@@ -1,4 +1,6 @@
 package org.goros.habit_tracker.service;
 
-public class AppUserService {
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public interface AppUserService extends UserDetailsService {
 }

@@ -40,10 +40,11 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         AppUser appUser = (AppUser) userDetails;
-        claims.put(
-                "userId", appUser.getUserId() // pass userId as an extra claim
-        );
-        return createToken(claims, ((AppUser) userDetails).getEmail());
+
+        claims.put("email", appUser.getEmail());
+        claims.put("username", appUser.getUsername());
+
+        return createToken(claims, String.valueOf(appUser.getAppUserId()));
     }
 
     private Claims extractAllClaim(String token) {
@@ -59,7 +60,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String extractUsername(String token) {
+    public String extractIdentifier(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -72,7 +73,7 @@ public class JwtService {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String email = extractUsername(token);
-        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String identifier = extractIdentifier(token);
+        return (identifier.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }

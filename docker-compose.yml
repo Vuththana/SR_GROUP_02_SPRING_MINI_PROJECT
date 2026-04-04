@@ -1,4 +1,15 @@
+version: "3.9"
+
 services:
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   rustfs:
     image: rustfs/rustfs:latest
     container_name: rustfs_local
@@ -21,4 +32,5 @@ services:
       /data
 
 volumes:
+  redis_data:
   rustfs_data:

@@ -27,6 +27,7 @@ public class ProfileServiceImpl implements ProfileService {
     public ProfileResponse getProfile() {
         UUID appUserId = extractAuthenticatedUserId();
         ProfileResponse profile = profileRepository.findById(appUserId);
+        System.out.println(profile);
         if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
         }

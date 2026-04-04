@@ -1,8 +1,10 @@
 package org.goros.habit_tracker.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.goros.habit_tracker.model.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -72,6 +74,18 @@ public class GlobalExceptionHandler {
                 "timestamp", LocalDateTime.now(),
                 "errors", errors
         ));
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ProblemDetail handleNotFoundException(NotFoundException ex, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setTitle("Not Found");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
     }

@@ -21,25 +21,11 @@ public interface AppUserRepository {
     """)
     AppUser getUserByEmailOrUsername(String identifier);
 
-    // This is for testing (will be removed soon)
-    @Select("""
-                SELECT * FROM app_users
-                WHERE app_user_id = #{appUserId}
-            """)
-    @ResultMap("appUserMapper")
-    AppUser getUserById(UUID appUserId);
-
     @Select("""
     INSERT INTO app_users(username, email, password, profile_image, created_at) VALUES (#{req.username}, #{req.email}, #{req.password}, #{req.profileImageUrl}, NOW()) RETURNING *
     """)
     @ResultMap("appUserMapper")
     AppUser register(@Param("req")AppUserRequest request);
-
-
-    @Update("""
-    UPDATE app_users SET is_verified = true WHERE email = #{email}
-    """)
-    void updateUserVerification(String email);
 
     @Select("""
     SELECT EXISTS (SELECT 1 FROM app_users WHERE app_user_id = #{appUserId} AND is_verified = false)

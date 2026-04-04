@@ -47,12 +47,3 @@ CREATE TABLE IF NOT EXISTS habit_logs (
     habit_id INTEGER NOT NULL,
     FOREIGN KEY (habit_id) REFERENCES habits(habit_id) ON DELETE CASCADE
 );
-
-CREATE TABLE IF NOT EXISTS user_otps (
-    otp_id SERIAL PRIMARY KEY,
-    app_user_id UUID NOT NULL,
-    otp_code VARCHAR(6) NOT NULL,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (app_user_id) REFERENCES app_users(app_user_id) ON DELETE CASCADE ON UPDATE CASCADE
-)

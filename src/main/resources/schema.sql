@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS app_user_achievements (
 );
 
 CREATE TABLE IF NOT EXISTS habits (
-    habit_id SERIAL PRIMARY KEY,
+    habit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
     description TEXT,
     frequency VARCHAR(50),
@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS habits (
 );
 
 CREATE TABLE IF NOT EXISTS habit_logs (
-    habit_log_id SERIAL PRIMARY KEY,
+    habit_log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     log_date DATE NOT NULL,
     status VARCHAR(50) NOT NULL,
     xp_earned INTEGER DEFAULT 0,
-    habit_id INTEGER NOT NULL,
+    habit_id UUID NOT NULL,
     FOREIGN KEY (habit_id) REFERENCES habits(habit_id) ON DELETE CASCADE
 );

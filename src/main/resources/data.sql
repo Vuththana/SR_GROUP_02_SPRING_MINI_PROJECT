@@ -41,7 +41,8 @@ INSERT INTO habits (title, description, frequency, is_active, app_user_id) VALUE
 RETURNING habit_id, title;
 
 
+/* GET THE APP USER ID AND PUT INDIVIDUALLY RUN LATER */
 INSERT INTO habit_logs (log_date, status, xp_earned, habit_id)
-VALUES (CURRENT_DATE, 'Missed', 0, '98174312-88ce-4ea2-90ee-de7595f3aac7'),
-       (CURRENT_DATE - INTERVAL '1 day', 'Completed', 5, '7b38886d-1321-461f-841d-7b74d204f2b7'),
-       (CURRENT_DATE, 'Completed', 5, '7a4f5a10-bec9-48a0-847d-410eb2633fd8');
+VALUES (CURRENT_DATE, 'Missed', 0, '4d95aad8-a469-4827-92bf-c0fba6a8a72c'),
+       (CURRENT_DATE - INTERVAL '1 day', 'Completed', 5, 'e356925d-7649-4e85-b73c-65326dc5d97c'),
+       (CURRENT_DATE, 'Completed', 5, 'c1132e72-7d38-4614-86e2-b604e82b5db1');

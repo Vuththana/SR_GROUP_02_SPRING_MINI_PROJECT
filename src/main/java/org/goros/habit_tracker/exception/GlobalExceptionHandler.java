@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -15,8 +16,10 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,6 +32,33 @@ public class GlobalExceptionHandler {
         problemDetails.setInstance(URI.create(request.getRequestURI()));
         problemDetails.setProperty("timestamp", Instant.now());
         return problemDetails;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleInvalidEnum(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException invalidFormat
+                && invalidFormat.getTargetType().isEnum()) {
+            String allowedValues = Arrays.stream(invalidFormat.getTargetType().getEnumConstants())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+            ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+            problemDetail.setType(URI.create("about:blank"));
+            problemDetail.setTitle("Bad Request");
+            problemDetail.setDetail("Cannot deserialize value of type `"
+                    + invalidFormat.getTargetType().getSimpleName() + "` from String \""
+                    + invalidFormat.getValue() + "\": not one of the allowed values [" + allowedValues + "]");
+            problemDetail.setInstance(URI.create(request.getRequestURI()));
+            problemDetail.setProperty("timestamp", Instant.now());
+            return problemDetail;
+        }
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

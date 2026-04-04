@@ -13,6 +13,7 @@ import org.goros.habit_tracker.model.response.AppUserResponse;
 import org.goros.habit_tracker.model.response.AuthResponse;
 import org.goros.habit_tracker.service.AppUserService;
 import org.goros.habit_tracker.service.OtpService;
+import org.goros.habit_tracker.service.RedisUserCacheService;
 import org.goros.habit_tracker.utils.ResponseUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final ModelMapper modelMapper;
     private final OtpService otpService;
+    private final RedisUserCacheService redisUserCacheService;
 
     public void authenticate(String identifier, String password) throws Exception {
         try {
@@ -50,7 +52,12 @@ public class AuthController {
     }
     @PostMapping("/resend")
     public ResponseEntity<ApiResponseVoid> sendOtp(@RequestParam String email) throws Exception {
-        otpService.generateAndSendOtp(email);
+        String verificationKey = "verify:" + email;
+        AppUser cachedUser = redisUserCacheService.getUser(verificationKey);
+        if (cachedUser == null) {
+            throw new RuntimeException("User not found or already verified.");
+        }
+        otpService.generateAndSendOtp(email, verificationKey);
         ApiResponseVoid response = ResponseUtil.successVoid(HttpStatus.OK, "If an account with this email exists, an OTP has been sent. Please check your inbox.");
         return ResponseEntity.status(response.getStatus()).body(response);
     }
@@ -61,7 +68,6 @@ public class AuthController {
         boolean valid = otpService.verifyOtp(email, otpCode);
         ApiResponseVoid response = valid ? ResponseUtil.successVoid(HttpStatus.OK, "OTP verified, you can now login.")
                 : ResponseUtil.errorVoid(HttpStatus.BAD_REQUEST, "Wrong OTP code, please try again");
-
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
@@ -77,15 +83,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AppUserResponse>> register(@Valid @RequestBody AppUserRequest request) throws Exception {
-        AppUserResponse mapper = modelMapper.map(appUserService.register(request), AppUserResponse.class);
-        otpService.generateAndSendOtp(request.getEmail());
-        ApiResponse<AppUserResponse> response = ResponseUtil.success(HttpStatus.OK, "Registered successfully, you will need to verify your email to login", mapper);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+        AppUserResponse cachedUserResponse = appUserService.register(request);
+        String verificationKey = "verify:" + request.getEmail();
+        otpService.generateAndSendOtp(request.getEmail(), verificationKey);
 
-    // This is for testing (will be deleted soon)
-    @GetMapping("{user-id}")
-    public ResponseEntity<AppUser> getUserById(@PathVariable("user-id") UUID appUserId) {
-        return ResponseEntity.status(HttpStatus.OK).body(appUserService.getUserById(appUserId));
+        ApiResponse<AppUserResponse> response = ResponseUtil.success(HttpStatus.OK, "Registered successfully, you will need to verify your email to login", cachedUserResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

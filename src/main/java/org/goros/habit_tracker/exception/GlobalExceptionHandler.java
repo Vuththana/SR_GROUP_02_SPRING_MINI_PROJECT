@@ -1,10 +1,9 @@
 package org.goros.habit_tracker.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.goros.habit_tracker.model.response.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -26,17 +25,6 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetails = ProblemDetail.forStatus(400);
         problemDetails.setType(URI.create("about:blank"));
         problemDetails.setTitle("Bad Request");
-        problemDetails.setDetail(ex.getMessage());
-        problemDetails.setInstance(URI.create(request.getRequestURI()));
-        problemDetails.setProperty("timestamp", Instant.now());
-        return problemDetails;
-    }
-
-    @ExceptionHandler(ConflictException.class)
-    public ProblemDetail handleBadRequestException(ConflictException ex, HttpServletRequest request) {
-        ProblemDetail problemDetails = ProblemDetail.forStatus(409);
-        problemDetails.setType(URI.create("about:blank"));
-        problemDetails.setTitle("Duplicated User Entry");
         problemDetails.setDetail(ex.getMessage());
         problemDetails.setInstance(URI.create(request.getRequestURI()));
         problemDetails.setProperty("timestamp", Instant.now());
@@ -79,14 +67,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ProblemDetail handleNotFoundException(NotFoundException ex, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problemDetail.setType(URI.create("about:blank"));
-        problemDetail.setTitle("Not Found");
-        problemDetail.setDetail(ex.getMessage());
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
+    public ProblemDetail handleNotFoundException(NotFoundException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problemDetail.setProperty("timestamp", Instant.now());
-
         return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            String paramName = propertyPath.substring(propertyPath.lastIndexOf('.') + 1);
+            errors.put(paramName, violation.getMessage());
+        });
+
+        ProblemDetail problemDetails = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetails.setInstance(URI.create(request.getRequestURI()));
+        problemDetails.setProperty("timestamp", Instant.now());
+        problemDetails.setProperty("errors", errors);
+
+        return problemDetails;
     }
 }

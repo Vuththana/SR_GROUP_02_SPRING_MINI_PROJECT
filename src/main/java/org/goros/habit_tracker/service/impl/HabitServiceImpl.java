@@ -39,21 +39,8 @@ public class HabitServiceImpl implements HabitService {
 
     @Override
     public Habit saveHabit(HabitRequest habitRequest, AppUserResponse currentUser) {
-        boolean isValid = false;
-        for (Frequency f : Frequency.values()) {
-            if (f.name().equalsIgnoreCase(habitRequest.getFrequency().name())) {
-                isValid = true;
-                break;
-            }
-        }
-        if (!isValid) {
-            throw new BadRequestException(" Frequency '" + habitRequest.getFrequency() +
-                    "'Not Match [DAILY,WEEKLY,MONTHLY]");
-        }
         habitRequest.setAppUserId(currentUser.getAppUserId());
-
-        Habit habit = habitRepository.saveHabit(habitRequest);
-        return habit;
+        return habitRepository.saveHabit(habitRequest);
     }
 
     @Override

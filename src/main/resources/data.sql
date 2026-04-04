@@ -1,4 +1,3 @@
-
 INSERT INTO achievements (title, description, badge, xp_required)
 VALUES
       ('First Step', 'Log your first habit', 'starter_badge.png', 10),

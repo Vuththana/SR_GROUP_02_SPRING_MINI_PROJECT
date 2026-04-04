@@ -33,15 +33,15 @@ WITH users AS (
     SELECT * FROM app_users
 )
 INSERT INTO habits (title, description, frequency, is_active, app_user_id) VALUES
-    ('Morning Run', 'Run 3 miles', 'Daily', TRUE, (SELECT app_user_id FROM users WHERE username='alice_jones')),
-    ('Read 20 Pages', 'Read non-fiction before bed', 'Daily', TRUE, (SELECT app_user_id FROM users WHERE username='alice_jones')),
-    ('Drink Water', 'Drink 8 glasses of water', 'Daily', TRUE, (SELECT app_user_id FROM users WHERE username='bob_smith')),
-    ('Meditate', '10 minutes of mindfulness', 'Daily', FALSE, (SELECT app_user_id FROM users WHERE username='bob_smith')),
-    ('Gym Workout', 'Weight training', 'Weekly', TRUE, (SELECT app_user_id FROM users WHERE username='charlie_davis'))
+    ('Morning Run', 'Run 3 miles', 'DAILY', TRUE, (SELECT app_user_id FROM users WHERE username='alice_jones')),
+    ('Read 20 Pages', 'Read non-fiction before bed', 'DAILY', TRUE, (SELECT app_user_id FROM users WHERE username='alice_jones')),
+    ('Drink Water', 'Drink 8 glasses of water', 'DAILY', TRUE, (SELECT app_user_id FROM users WHERE username='bob_smith')),
+    ('Meditate', '10 minutes of mindfulness', 'DAILY', FALSE, (SELECT app_user_id FROM users WHERE username='bob_smith')),
+    ('Gym Workout', 'Weight training', 'WEEKLY', TRUE, (SELECT app_user_id FROM users WHERE username='charlie_davis'))
 RETURNING habit_id, title;
 
 
 INSERT INTO habit_logs (log_date, status, xp_earned, habit_id)
-VALUES (CURRENT_DATE, 'Missed', 0, 1),
-       (CURRENT_DATE - INTERVAL '1 day', 'Completed', 5, 2),
-       (CURRENT_DATE, 'Completed', 5, 2);
+VALUES (CURRENT_DATE, 'Missed', 0, '98174312-88ce-4ea2-90ee-de7595f3aac7'),
+       (CURRENT_DATE - INTERVAL '1 day', 'Completed', 5, '7b38886d-1321-461f-841d-7b74d204f2b7'),
+       (CURRENT_DATE, 'Completed', 5, '7a4f5a10-bec9-48a0-847d-410eb2633fd8');

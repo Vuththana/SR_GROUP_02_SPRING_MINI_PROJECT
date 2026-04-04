@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Mapper
 public interface AppUserRepository {
-
     @Results(id = "appUserMapper", value = {
             @Result(property = "appUserId", column = "app_user_id", typeHandler = UUIDTypeHandler.class),
             @Result(property = "profileImageUrl", column = "profile_image"),
@@ -21,7 +20,6 @@ public interface AppUserRepository {
     """)
     AppUser getUserByEmailOrUsername(String identifier);
 
-    // This is for testing (will be removed soon)
     @Select("""
                 SELECT * FROM app_users
                 WHERE app_user_id = #{appUserId}

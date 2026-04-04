@@ -29,24 +29,26 @@ CREATE TABLE IF NOT EXISTS app_user_achievements (
 );
 
 CREATE TABLE IF NOT EXISTS habits (
-    habit_id SERIAL PRIMARY KEY,
+    habit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    frequency VARCHAR(50),
+    frequency habit_frequency DEFAULT 'DAILY',
     is_active BOOLEAN DEFAULT TRUE,
     app_user_id UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (app_user_id) REFERENCES app_users(app_user_id) ON DELETE CASCADE
 );
 
+
 CREATE TABLE IF NOT EXISTS habit_logs (
-    habit_log_id SERIAL PRIMARY KEY,
+    habit_log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     log_date DATE NOT NULL,
     status VARCHAR(50) NOT NULL,
     xp_earned INTEGER DEFAULT 0,
-    habit_id INTEGER NOT NULL,
+    habit_id UUID NOT NULL,
     FOREIGN KEY (habit_id) REFERENCES habits(habit_id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS user_otps (
     otp_id SERIAL PRIMARY KEY,
@@ -56,3 +58,5 @@ CREATE TABLE IF NOT EXISTS user_otps (
     used BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (app_user_id) REFERENCES app_users(app_user_id) ON DELETE CASCADE ON UPDATE CASCADE
 )
+
+CREATE TYPE habit_frequency AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY');

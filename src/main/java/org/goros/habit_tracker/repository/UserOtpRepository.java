@@ -2,9 +2,7 @@ package org.goros.habit_tracker.repository;
 
 import org.apache.ibatis.annotations.*;
 import org.goros.habit_tracker.model.entity.UserOtp;
-import org.goros.habit_tracker.mybatis.UUIDTypeHandler;
-
-import java.util.UUID;
+import org.goros.habit_tracker.repository.typehandler.UUIDTypeHandler;
 
 @Mapper
 public interface UserOtpRepository {

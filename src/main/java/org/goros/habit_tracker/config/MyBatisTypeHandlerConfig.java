@@ -1,7 +1,7 @@
 package org.goros.habit_tracker.config;
 
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.goros.habit_tracker.mybatis.UUIDTypeHandler;
+import org.goros.habit_tracker.repository.typehandler.UUIDTypeHandler;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package org.goros.habit_tracker.mybatis;
+package org.goros.habit_tracker.repository.typehandler;
 
 
 import org.apache.ibatis.type.BaseTypeHandler;

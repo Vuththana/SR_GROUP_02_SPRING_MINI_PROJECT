@@ -45,7 +45,7 @@
 <body>
 <div class="container">
     <h2>OTP Verification</h2>
-    <p>Hello,</p>
+    <p th:text="'Hello, ' + ${name}">Hello, Name</p>
     <p>Use the following One-Time Password (OTP) to complete your verification:</p>
     <div class="otp" th:text="${otpCode}">123456</div>
     <p>This OTP will expire shortly. Please do not share it with anyone.</p>

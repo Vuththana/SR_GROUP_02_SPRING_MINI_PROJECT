@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE IF NOT EXISTS achievements (
     achievement_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -7,7 +9,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 );
 
 CREATE TABLE IF NOT EXISTS app_users (
-    app_user_id SERIAL PRIMARY KEY,
+    app_user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -20,7 +22,7 @@ CREATE TABLE IF NOT EXISTS app_users (
 
 CREATE TABLE IF NOT EXISTS app_user_achievements (
     app_user_achievement_id SERIAL PRIMARY KEY,
-    app_user_id INTEGER NOT NULL,
+    app_user_id UUID NOT NULL,
     achievement_id INTEGER NOT NULL,
     FOREIGN KEY (app_user_id) REFERENCES app_users(app_user_id) ON DELETE CASCADE,
     FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id) ON DELETE CASCADE
@@ -32,7 +34,7 @@ CREATE TABLE IF NOT EXISTS habits (
     description TEXT,
     frequency VARCHAR(50),
     is_active BOOLEAN DEFAULT TRUE,
-    app_user_id INTEGER NOT NULL,
+    app_user_id UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (app_user_id) REFERENCES app_users(app_user_id) ON DELETE CASCADE
 );

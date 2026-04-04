@@ -2,6 +2,7 @@ package org.goros.habit_tracker.repository;
 
 import org.apache.ibatis.annotations.*;
 import org.goros.habit_tracker.model.entity.Achievement;
+import org.goros.habit_tracker.mybatis.UUIDTypeHandler;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,13 +11,13 @@ import java.util.UUID;
 public interface AchievementRepository {
 
     @Results(id = "achievementMapper", value = {
-            @Result(property = "achievementId", column = "achievement_id", id = true),
+            @Result(property = "achievementId", column = "achievement_id", typeHandler = UUIDTypeHandler.class),
             @Result(property = "xpRequired", column = "xp_required")
     })
     @Select("""
         SELECT * FROM achievements OFFSET #{offset} LIMIT #{size};
     """)
-    List<Achievement> getAllAchievement(@Param("offset") Long offset,@Param("size") Long size);
+    List<Achievement> getAllAchievements(@Param("offset") Long offset,@Param("size") Long size);
 
     @ResultMap("achievementMapper")
     @Select("""

@@ -1,5 +1,6 @@
 package org.goros.habit_tracker.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.goros.habit_tracker.model.entity.Achievement;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/achievements")
+@SecurityRequirement(name = "basicAuth")
 @Validated
 public class AchievementController {
 
@@ -26,7 +28,7 @@ public class AchievementController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Achievement>>> getAllAchievement(@Positive @RequestParam(defaultValue = "1") Long page, @Positive @RequestParam(defaultValue = "10") Long size) {
-        return ResponseEntity.ok(ResponseUtil.success(HttpStatus.OK, "successfully retrieved achievement ", achievementService.getAllAchievement(page, size)));
+        return ResponseEntity.ok(ResponseUtil.success(HttpStatus.OK, "successfully retrieved achievement ", achievementService.getAllAchievements(page, size)));
     }
 
     @GetMapping("/app-users")

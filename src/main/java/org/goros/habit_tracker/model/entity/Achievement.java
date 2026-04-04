@@ -1,8 +1,12 @@
 package org.goros.habit_tracker.model.entity;
 
+import lombok.Data;
 
+import java.util.UUID;
+
+@Data
 public class Achievement {
-    private Long achievementId;
+    private UUID achievementId;
     private String title;
     private String description;
     private String badge;

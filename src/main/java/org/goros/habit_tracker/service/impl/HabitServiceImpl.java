@@ -23,7 +23,9 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public List<Habit> getAllHabits(Integer page, Integer size, UUID currentAppUserId) {
         int offset = (page - 1) * size;
-        return habitRepository.getAllHabits(offset, size, currentAppUserId);
+        List<Habit> habits = habitRepository.getAllHabits(offset, size, currentAppUserId);
+        if (habits.isEmpty()) throw new NotFoundException("no habits found");
+        return habits;
     }
 
     @Override

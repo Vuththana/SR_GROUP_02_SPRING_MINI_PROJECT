@@ -18,14 +18,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AchievementServiceImpl implements AchievementService {
     private final AchievementRepository achievementRepository;
-    private final AppUserService appUserService;
-
     @Override
-    public List<Achievement> getAllAchievement(Long page, Long size) {
+    public List<Achievement> getAllAchievements(Long page, Long size) {
 
         Long offset = (page - 1) * size;
 
-        List<Achievement> achievements = achievementRepository.getAllAchievement(offset, size);
+        List<Achievement> achievements = achievementRepository.getAllAchievements(offset, size);
         if (achievements.isEmpty()) throw new NotFoundException("no achievement found");
 
         return achievements;

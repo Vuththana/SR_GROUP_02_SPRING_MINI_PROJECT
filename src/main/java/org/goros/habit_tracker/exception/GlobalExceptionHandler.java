@@ -30,6 +30,17 @@ public class GlobalExceptionHandler {
         return problemDetails;
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleBadRequestException(ConflictException ex, HttpServletRequest request) {
+        ProblemDetail problemDetails = ProblemDetail.forStatus(409);
+        problemDetails.setType(URI.create("about:blank"));
+        problemDetails.setTitle("Duplicated User Entry");
+        problemDetails.setDetail(ex.getMessage());
+        problemDetails.setInstance(URI.create(request.getRequestURI()));
+        problemDetails.setProperty("timestamp", Instant.now());
+        return problemDetails;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         ProblemDetail problemDetails = ProblemDetail.forStatus(400);

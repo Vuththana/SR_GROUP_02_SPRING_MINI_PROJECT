@@ -10,5 +10,4 @@ import java.util.UUID;
 public interface AppUserService extends UserDetailsService {
 
     AppUserResponse register(AppUserRequest request);
-    AppUser getUserById(UUID appUserId);
 }

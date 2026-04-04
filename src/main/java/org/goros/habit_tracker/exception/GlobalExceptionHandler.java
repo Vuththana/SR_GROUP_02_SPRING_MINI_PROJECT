@@ -1,6 +1,7 @@
 package org.goros.habit_tracker.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -63,5 +64,30 @@ public class GlobalExceptionHandler {
         ));
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ProblemDetail handleNotFoundException(NotFoundException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            String paramName = propertyPath.substring(propertyPath.lastIndexOf('.') + 1);
+            errors.put(paramName, violation.getMessage());
+        });
+
+        ProblemDetail problemDetails = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetails.setInstance(URI.create(request.getRequestURI()));
+        problemDetails.setProperty("timestamp", Instant.now());
+        problemDetails.setProperty("errors", errors);
+
+        return problemDetails;
     }
 }

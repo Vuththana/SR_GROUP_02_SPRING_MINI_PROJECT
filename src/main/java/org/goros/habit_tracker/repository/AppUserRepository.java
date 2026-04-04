@@ -3,6 +3,7 @@ package org.goros.habit_tracker.repository;
 import org.apache.ibatis.annotations.*;
 import org.goros.habit_tracker.model.entity.AppUser;
 import org.goros.habit_tracker.model.request.AppUserRequest;
+import org.goros.habit_tracker.model.response.AppUserResponse;
 import org.goros.habit_tracker.repository.typehandler.UUIDTypeHandler;
 
 import java.util.UUID;
@@ -22,10 +23,25 @@ public interface AppUserRepository {
     AppUser getUserByEmailOrUsername(String identifier);
 
     @Select("""
-    INSERT INTO app_users(username, email, password, profile_image, created_at, is_verified) VALUES (#{req.username}, #{req.email}, #{req.password}, #{req.profileImageUrl}, NOW(), true) RETURNING *
+    SELECT 
+        app_user_id AS appUserId,
+        username,
+        email,
+        level,
+        xp,
+        profile_image AS profileImageUrl,
+        is_verified AS isVerified,
+        created_at AS createdAt
+    FROM app_users
+    WHERE app_user_id = #{appUserId}
+    """)
+    AppUserResponse getUserById(UUID appUserId);
+
+    @Select("""
+    INSERT INTO app_users(app_user_id, username, email, password, profile_image, created_at, is_verified) VALUES (#{appUserId}, #{req.username}, #{req.email}, #{req.password}, #{req.profileImageUrl}, NOW(), true) RETURNING *
     """)
     @ResultMap("appUserMapper")
-    AppUser register(@Param("req")AppUserRequest request);
+    AppUser registerWithUuid(@Param("appUserId") UUID appUserId, @Param("req")AppUserRequest request);
 
     @Select("""
     SELECT EXISTS (SELECT 1 FROM app_users WHERE app_user_id = #{appUserId} AND is_verified = false)

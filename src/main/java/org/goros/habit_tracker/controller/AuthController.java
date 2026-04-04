@@ -1,11 +1,14 @@
 package org.goros.habit_tracker.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.goros.habit_tracker.jwt.JwtService;
 import org.goros.habit_tracker.model.entity.AppUser;
 import org.goros.habit_tracker.model.request.AppUserRequest;
 import org.goros.habit_tracker.model.request.AuthRequest;
 import org.goros.habit_tracker.model.response.ApiResponse;
+import org.goros.habit_tracker.model.response.ApiResponseVoid;
 import org.goros.habit_tracker.model.response.AppUserResponse;
 import org.goros.habit_tracker.model.response.AuthResponse;
 import org.goros.habit_tracker.service.AppUserService;
@@ -19,6 +22,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,6 +30,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/auths")
+@Validated
 public class AuthController {
 
     private final AppUserService appUserService;
@@ -37,26 +42,27 @@ public class AuthController {
     public void authenticate(String identifier, String password) throws Exception {
         try {
             authenticateManager.authenticate(new UsernamePasswordAuthenticationToken(identifier, password));
-        } catch (
-                DisabledException e) {
+        } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
-        } catch (
-                BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Invalid username, email, or password. Please check your credentials and try again.", e);
         }
     }
-    @PostMapping("/send")
-    public ResponseEntity<String> sendOtp(@RequestParam String email) throws Exception {
+    @PostMapping("/resend")
+    public ResponseEntity<ApiResponseVoid> sendOtp(@RequestParam String email) throws Exception {
         otpService.generateAndSendOtp(email);
-        return ResponseEntity.ok("If an account with this email exists, an OTP has been sent. Please check your inbox.");
+        ApiResponseVoid response = ResponseUtil.successVoid(HttpStatus.OK, "If an account with this email exists, an OTP has been sent. Please check your inbox.");
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyOtp(@RequestParam String email,
-                                            @RequestParam String otpCode) {
+    public ResponseEntity<ApiResponseVoid> verifyOtp(@RequestParam String email,
+                                                     @RequestParam String otpCode) {
         boolean valid = otpService.verifyOtp(email, otpCode);
-        return valid ? ResponseEntity.ok("OTP verified!")
-                : ResponseEntity.status(400).body("Invalid or expired OTP");
+        ApiResponseVoid response = valid ? ResponseUtil.successVoid(HttpStatus.OK, "OTP verified, you can now login.")
+                : ResponseUtil.errorVoid(HttpStatus.BAD_REQUEST, "Wrong OTP code, please try again");
+
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PostMapping("/login")
@@ -70,8 +76,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AppUserResponse> register(@RequestBody AppUserRequest request){
-        AppUserResponse response = modelMapper.map(appUserService.register(request), AppUserResponse.class);
+    public ResponseEntity<ApiResponse<AppUserResponse>> register(@Valid @RequestBody AppUserRequest request) throws Exception {
+        AppUserResponse mapper = modelMapper.map(appUserService.register(request), AppUserResponse.class);
+        otpService.generateAndSendOtp(request.getEmail());
+        ApiResponse<AppUserResponse> response = ResponseUtil.success(HttpStatus.OK, "Registered successfully, you will need to verify your email to login", mapper);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

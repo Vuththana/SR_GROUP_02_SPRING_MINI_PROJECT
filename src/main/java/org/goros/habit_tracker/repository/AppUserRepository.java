@@ -1,10 +1,9 @@
 package org.goros.habit_tracker.repository;
 
 import org.apache.ibatis.annotations.*;
-import org.apache.ibatis.type.JdbcType;
 import org.goros.habit_tracker.model.entity.AppUser;
 import org.goros.habit_tracker.model.request.AppUserRequest;
-import org.goros.habit_tracker.mybatis.UUIDTypeHandler;
+import org.goros.habit_tracker.repository.typehandler.UUIDTypeHandler;
 
 import java.util.UUID;
 
@@ -18,20 +17,20 @@ public interface AppUserRepository {
             @Result(property = "createdAt", column = "created_at")
     })
     @Select("""
-    SELECT * FROM app_users WHERE username = #{identifier} OR email = #{identifier}
+    SELECT * FROM app_users WHERE LOWER(username) = LOWER(#{identifier}) OR LOWER(email) = LOWER(#{identifier})
     """)
     AppUser getUserByEmailOrUsername(String identifier);
 
     // This is for testing (will be removed soon)
     @Select("""
                 SELECT * FROM app_users
-                WHERE app_user_id = #{userId}
+                WHERE app_user_id = #{appUserId}
             """)
     @ResultMap("appUserMapper")
-    AppUser getUserById(UUID userId);
+    AppUser getUserById(UUID appUserId);
 
     @Select("""
-    INSERT INTO app_users(username, email, password, profile_image) VALUES (#{req.username}, #{req.email}, #{req.password}, #{req.profileImageUrl}) RETURNING *
+    INSERT INTO app_users(username, email, password, profile_image, created_at) VALUES (#{req.username}, #{req.email}, #{req.password}, #{req.profileImageUrl}, NOW()) RETURNING *
     """)
     @ResultMap("appUserMapper")
     AppUser register(@Param("req")AppUserRequest request);

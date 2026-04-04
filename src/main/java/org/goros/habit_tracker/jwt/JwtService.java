@@ -39,10 +39,11 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         AppUser appUser = (AppUser) userDetails;
 
+        claims.put("appUserId", appUser.getAppUserId());
         claims.put("email", appUser.getEmail());
         claims.put("username", appUser.getUsername());
 
-        return createToken(claims, String.valueOf(appUser.getAppUserId()));
+        return createToken(claims, appUser.getUsername());
     }
 
     private Claims extractAllClaim(String token) {

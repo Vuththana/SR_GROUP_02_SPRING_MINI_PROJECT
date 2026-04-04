@@ -61,7 +61,7 @@ public class OtpServiceImpl implements OtpService {
         request.setPassword(cachedUser.getPassword());
         request.setProfileImageUrl(cachedUser.getProfileImageUrl());
 
-        appUserRepository.register(request);
+        appUserRepository.registerWithUuid(cachedUser.getAppUserId(), request);
         redisTemplate.delete(otpKey);
         redisUserCacheService.deleteUser(verificationKey);
         return true;

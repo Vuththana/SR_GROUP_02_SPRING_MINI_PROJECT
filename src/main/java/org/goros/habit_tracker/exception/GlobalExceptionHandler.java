@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +25,16 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler({AuthenticationException.class, InsufficientAuthenticationException.class})
+    public ProblemDetail handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
+        ProblemDetail problemDetails = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problemDetails.setProperty("error", "UNAUTHORIZED");
+        problemDetails.setProperty("message",ex.getMessage());
+        problemDetails.setProperty("path", request.getRequestURI());
+        return problemDetails;
+    }
+
     @ExceptionHandler({UserNotVerifiedException.class, BadRequestException.class, BadCredentialsException.class, UsernameNotFoundException.class})
     public ProblemDetail handleBadRequestException(Exception ex, HttpServletRequest request) {
         ProblemDetail problemDetails = ProblemDetail.forStatus(400);

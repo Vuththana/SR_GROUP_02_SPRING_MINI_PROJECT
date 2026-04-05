@@ -24,4 +24,12 @@ public interface AchievementRepository {
          SELECT a.* FROM app_user_achievements aa INNER JOIN achievements a on aa.achievement_id = a.achievement_id WHERE aa.app_user_id = #{userId} OFFSET #{offset} LIMIT #{size};
      """)
     List<Achievement> getAllAchievementByAppUserId(@Param("offset") Long offset, @Param("size") Long size, @Param("userId") UUID userId);
+
+    @ResultMap("achievementMapper")
+    @Select("""
+        SELECT *
+        FROM achievements
+        WHERE xp_required <= #{xp}
+    """)
+    List<Achievement> findByRequiredXpLessThanEqual(int xp);
 }

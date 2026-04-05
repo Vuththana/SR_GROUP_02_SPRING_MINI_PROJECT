@@ -47,4 +47,9 @@ public interface AppUserRepository {
     SELECT EXISTS (SELECT 1 FROM app_users WHERE app_user_id = #{appUserId} AND is_verified = false)
     """)
     boolean isUserVerified(UUID appUserId);
+
+    @Update("""
+    UPDATE app_users SET xp = #{xp}, level = #{level} WHERE app_user_id = #{appUserId}
+    """)
+    void updateXpAndLevel(UUID appUserId, int xp, int level);
 }

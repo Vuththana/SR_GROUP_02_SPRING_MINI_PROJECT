@@ -1,5 +1,6 @@
 package org.goros.habit_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class AuthController {
         }
     }
     @PostMapping("/resend")
+    @Operation(summary = "Resend verification OTP")
     public ResponseEntity<ApiResponseVoid> sendOtp(@RequestParam String email) throws Exception {
         String verificationKey = "verify:" + email;
         AppUser cachedUser = redisUserCacheService.getUser(verificationKey);
@@ -63,6 +65,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
+    @Operation(summary = "Verify email with OTP")
     public ResponseEntity<ApiResponseVoid> verifyOtp(@RequestParam String email,
                                                      @RequestParam String otpCode) {
         boolean valid = otpService.verifyOtp(email, otpCode);
@@ -72,6 +75,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "User login")
     public ResponseEntity<ApiResponse<AuthResponse>> authenticate(@RequestBody AuthRequest request) throws Exception {
         authenticate(request.getIdentifier(), request.getPassword());
         final UserDetails userDetails = appUserService.loadUserByUsername(request.getIdentifier());
@@ -82,6 +86,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Register a new user")
     public ResponseEntity<ApiResponse<AppUserResponse>> register(@Valid @RequestBody AppUserRequest request) throws Exception {
         AppUserResponse cachedUserResponse = appUserService.register(request);
         String verificationKey = "verify:" + request.getEmail();

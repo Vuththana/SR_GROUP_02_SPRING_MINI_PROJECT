@@ -7,9 +7,11 @@ import org.goros.habit_tracker.model.entity.Habit;
 import org.goros.habit_tracker.model.entity.HabitLog;
 import org.goros.habit_tracker.model.enums.HabitStatus;
 import org.goros.habit_tracker.model.request.HabitLogRequest;
+import org.goros.habit_tracker.model.response.AppUserResponse;
 import org.goros.habit_tracker.repository.HabitLogRepository;
 import org.goros.habit_tracker.repository.HabitRepository;
 import org.goros.habit_tracker.service.HabitLogService;
+import org.goros.habit_tracker.service.LevelingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class HabitLogServiceImpl implements HabitLogService {
     private final HabitLogRepository habitLogRepository;
     private final HabitRepository habitRepository;
+    private final LevelingService levelingService;
 
     @Override
     public HabitLog getHabitLogByHabitId(UUID habitId, UUID appUserId) {
@@ -35,37 +38,38 @@ public class HabitLogServiceImpl implements HabitLogService {
     public HabitLog saveHabitLog(HabitLogRequest habitLogRequest, UUID appUserId) {
 
         Habit habit = habitRepository.getHabitById(habitLogRequest.getHabitId(), appUserId);
-
-        if (habit == null) {
-            throw new NotFoundException("Habit not found with ID: " + habitLogRequest.getHabitId());
-        }
+        if (habit == null) throw new NotFoundException("Habit not found");
 
         LocalDate today = LocalDate.now();
+        HabitLog existing = habitLogRepository.findByHabitIdAndDate(habit.getHabitId(), today, appUserId);
 
-        HabitLog existing = habitLogRepository.findByHabitIdAndDate(habit.getHabitId(), today);
+        long xpToAdd = habitLogRequest.getStatus() == HabitStatus.COMPLETED ? 10L : 0L;
+        HabitLog habitLogToReturn;
 
         if (existing == null) {
             HabitLog habitLog = new HabitLog();
             habitLog.setHabitLogId(UUID.randomUUID());
             habitLog.setLogDate(today);
             habitLog.setStatus(habitLogRequest.getStatus());
-            habitLog.setXpEarned(habitLogRequest.getStatus() == HabitStatus.COMPLETED ? 10L : 0L);
+            habitLog.setXpEarned(xpToAdd);
             habitLog.setHabit(habit);
 
-            HabitLog saved = habitLogRepository.saveHabitLog(habitLog);
-            saved.setHabit(habit);
-            return saved;
+            habitLogToReturn = habitLogRepository.saveHabitLog(habitLog, appUserId);
+        } else {
+            if (existing.getStatus() == HabitStatus.COMPLETED)
+                throw new BadRequestException("Habit already completed today");
+
+            existing.setStatus(habitLogRequest.getStatus());
+            existing.setXpEarned(xpToAdd);
+            existing.setHabit(habit);
+
+            habitLogRepository.updateHabitLog(existing);
+            habitLogToReturn = existing;
         }
 
-        if (existing.getStatus() == HabitStatus.COMPLETED) {
-            throw new BadRequestException("Habit already completed today");
+        if (xpToAdd > 0) {
+            AppUserResponse updatedUser = levelingService.addXp(appUserId, (int) xpToAdd);
         }
 
-        existing.setStatus(habitLogRequest.getStatus());
-        existing.setXpEarned(habitLogRequest.getStatus() == HabitStatus.COMPLETED ? 10L : 0L);
-        existing.setHabit(habit);
-
-        habitLogRepository.updateHabitLog(existing);
-        return existing;
-    }
-}
+        return habitLogToReturn;
+    }}

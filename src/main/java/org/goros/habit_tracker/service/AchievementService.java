@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface AchievementService {
     List<Achievement> getAllAchievements(@Positive Long page, @Positive Long size);
     List<Achievement> getAllAchievementByAppUserId(@Positive Long page, @Positive Long size);
+    void checkAchievements(UUID appUserId, int xp);
 }

@@ -1,5 +1,6 @@
 package org.goros.habit_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
@@ -29,6 +30,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping
+    @Operation(summary = "Get user profile")
     public ResponseEntity<ApiResponse<ProfileResponse>> getProfile() {
         ProfileResponse payload = profileService.getProfile();
         ApiResponse<ProfileResponse> response = ApiResponse.<ProfileResponse>builder()
@@ -42,6 +44,7 @@ public class ProfileController {
     }
 
     @PutMapping
+    @Operation(summary = "Update user profile")
     public ResponseEntity<ApiResponse<ProfileResponse>> updateProfile(@RequestBody ProfileUpdateRequest requestBody) {
         ProfileResponse payload = profileService.updateProfile(requestBody);
         ApiResponse<ProfileResponse> response = ApiResponse.<ProfileResponse>builder()
@@ -55,6 +58,7 @@ public class ProfileController {
     }
 
     @DeleteMapping
+    @Operation(summary = "Delete user profile")
     public ResponseEntity<ApiResponseVoid> deleteProfile() {
         profileService.deleteProfile();
         ApiResponseVoid response = ApiResponseVoid.builder()

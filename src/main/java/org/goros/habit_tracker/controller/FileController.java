@@ -1,5 +1,6 @@
 package org.goros.habit_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.goros.habit_tracker.model.entity.File;
 import org.goros.habit_tracker.model.response.ApiResponse;
@@ -21,6 +22,7 @@ public class FileController {
 
 
     @PostMapping(value = "upload-file",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload a file")
     public ResponseEntity<ApiResponse<File>> uploadFile(@RequestParam MultipartFile file){
         File resource = fileService.uploadFile(file);
         ApiResponse<File> response = ApiResponse.<File>builder()
@@ -34,6 +36,7 @@ public class FileController {
     }
 
     @GetMapping("/preview-file/{file-name}")
+    @Operation(summary = "Preview a file")
     public ResponseEntity<Resource> getFileByFileName(@PathVariable("file-name") String fileName){
 
         Resource resource = fileService.getFileByFileName(fileName);

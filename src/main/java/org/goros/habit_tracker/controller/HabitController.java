@@ -1,5 +1,6 @@
 package org.goros.habit_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -31,6 +32,7 @@ public class HabitController {
     private final ModelMapper modelMapper;
 
     @GetMapping
+    @Operation(summary = "Get All Habits")
     public ResponseEntity<ApiResponse<List<Habit>>> getAllHabits(@Positive(message = "Page must be positive") @RequestParam(defaultValue = "1") Integer page, @Positive(message = "Size must be positive") @RequestParam(defaultValue = "10") Integer size ) {
         AppUser currentAppUser = (AppUser) SecurityContextHolder
                 .getContext()
@@ -43,6 +45,7 @@ public class HabitController {
     }
 
     @GetMapping("/{habit-id}")
+    @Operation(summary = "Get habit by ID")
     public ResponseEntity<ApiResponse<Habit>> getHabitById(@PathVariable("habit-id") UUID habitId) {
         AppUser currentAppUser = (AppUser) SecurityContextHolder
                 .getContext()
@@ -55,6 +58,7 @@ public class HabitController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a new habit")
     public ResponseEntity<ApiResponse<Habit>> saveHabit(@Valid @RequestBody HabitRequest habitRequest) {
         AppUser appUser = (AppUser) SecurityContextHolder
                 .getContext()
@@ -67,6 +71,7 @@ public class HabitController {
     }
 
     @DeleteMapping("/{habit-id}")
+    @Operation(summary = "Delete user profile")
     public ResponseEntity<ApiResponseVoid> deleteHabitById(@PathVariable("habit-id") UUID habitId){
         AppUser currentAppUser = (AppUser) SecurityContextHolder
                 .getContext()
@@ -79,6 +84,7 @@ public class HabitController {
     }
 
     @PutMapping("/{habit-id}")
+    @Operation(summary = "Update user profile")
     public ResponseEntity<ApiResponse<Habit>> updateHabitById(@PathVariable("habit-id") UUID habitId , HabitRequest habitRequest) {
         AppUser currentAppUser = (AppUser) SecurityContextHolder
                 .getContext()
